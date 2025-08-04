@@ -14,7 +14,7 @@
       const file = document.getElementById('fileInput').files[0];
       if (!file) return alert("Please select a file.");
 
-      const res = await fetch('https://0ccbjiysmd.execute-api.eu-central-1.amazonaws.comm/presign?filename=' + encodeURIComponent(file.name));
+      const res = await fetch('https://0ccbjiysmd.execute-api.eu-central-1.amazonaws.com/presign?filename=' + encodeURIComponent(file.name));
       const { url, fields } = await res.json();
 
       const formData = new FormData();
@@ -37,3 +37,4 @@
   </script>
 </body>
 </html>
+
