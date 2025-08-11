@@ -1,15 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Upload Image</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="font-family: Arial; padding: 20px;">
-  <h2>Upload Your Image</h2>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      padding: 40px 20px;
+    }
 
-  <input type="file" id="fileInput" accept="image/*"><br><br>
-  <button onclick="uploadImage()">Upload</button>
-  <p id="status"></p>
+    h2 {
+      margin: 10px 0 20px 0;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      display: block;
+      margin: 0 auto;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 16px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 999px;
+      background-color: #93CD0C;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+      display: block;
+      margin: 20px auto 0;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #7fb905;
+      transform: scale(1.03);
+    }
+
+    #status {
+      margin-top: 20px;
+      text-align: center;
+      font-style: italic;
+      color: #ccc;
+    }
+
+    .container {
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+      text-align: center;
+      width: 320px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Upload Your Image</h2>
+    <input type="file" id="fileInput" accept="image/*"><br><br>
+    <button onclick="uploadImage()">Upload</button>
+    <p id="status"></p>
+  </div>
 
   <script>
     async function uploadImage() {
@@ -41,18 +106,19 @@
         });
 
         if (upload.ok) {
-          console.log("✅ Upload successful");
-          statusEl.textContent = "✅ Upload successful!";
+          console.log("Upload successful");
+          statusEl.textContent = "Upload successful!";
         } else {
-          console.error("❌ Upload failed:", upload.status);
-          statusEl.textContent = "❌ Upload failed.";
+          console.error("Upload failed:", upload.status);
+          statusEl.textContent = "Upload failed.";
         }
 
       } catch (err) {
-        console.error("❌ Error:", err);
-        statusEl.textContent = "❌ Upload failed (check console).";
+        console.error("Error:", err);
+        statusEl.textContent = "Upload failed (check console).";
       }
     }
   </script>
+
 </body>
 </html>
