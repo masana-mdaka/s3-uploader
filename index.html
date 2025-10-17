@@ -100,10 +100,15 @@
         console.log("Presigned URL:", data.upload_url);
 
         const upload = await fetch(data.upload_url, {
-          method: "PUT",
-          headers: { "Content-Type": file.type },
-          body: file
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+          "x-amz-meta-name": usernameInput.value.trim() || "anonymous",
+          "x-amz-meta-qrid": "ONE"
+        },
+        body: file
         });
+
 
         if (upload.ok) {
           console.log("Upload successful");
