@@ -54,6 +54,7 @@
       text-align: center;
       font-style: italic;
       color: #ccc;
+      white-space: pre-line;
     }
 
     .container {
@@ -79,8 +80,11 @@
 
   <script>
     async function uploadImage() {
-      const fileInput = document.getElementById("fileInput");
-      const statusEl = document.getElementById("status");
+      const fileInput   = document.getElementById("fileInput");
+      const statusEl    = document.getElementById("status");
+      const usernameEl  = document.getElementById("usernameInput");
+
+      const say = (m) => statusEl.textContent = m;
 
       if (!fileInput.files.length) {
         alert("Please select an image.");
@@ -91,41 +95,55 @@
       console.log("Selected file:", file.name, file.type);
 
       try {
-        const apiUrl = `https://t83rmp2h8i.execute-api.eu-central-1.amazonaws.com/post_function?content_type=${encodeURIComponent(file.type)}`;
-        console.log("Fetching presigned URL from:", apiUrl);
+        const presignUrl = "https://t83rmp2h8i.execute-api.eu-central-1.amazonaws.com/post_function";
+        console.log("Fetching presigned URL from:", presignUrl);
 
-        const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error(`API call failed: ${response.status}`);
-
-        const data = await response.json();
-        console.log("Presigned URL:", data.upload_url);
-
-        const upload = await fetch(data.upload_url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-          "x-amz-meta-name": usernameInput.value.trim() || "anonymous",
-          "x-amz-meta-qrid": "ONE"
-        },
-        body: file
+        const presignRes = await fetch(presignUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content_type: file.type
+            // If your Lambda *signs* metadata, include them and also send in PUT below:
+            // meta_name: (usernameEl?.value || "anonymous").trim(),
+            // meta_qrid: "ONE"
+          })
         });
 
+        if (!presignRes.ok) {
+          const t = await presignRes.text().catch(() => "");
+          throw new Error(`Presign failed: ${presignRes.status} ${t}`);
+        }
+
+        const data = await presignRes.json();
+        if (!data.upload_url) throw new Error("Presign response missing upload_url");
+        console.log("Presigned URL:", data.upload_url);
+
+        const putHeaders = { "Content-Type": file.type };
+        putHeaders["x-amz-meta-name"] = (usernameEl?.value || "anonymous").trim();
+        putHeaders["x-amz-meta-qrid"] = "ONE";
+
+        say("Uploading…");
+        const upload = await fetch(data.upload_url, {
+          method: "PUT",
+          headers: putHeaders,
+          body: file
+        });
 
         if (upload.ok) {
           console.log("Upload successful");
-          statusEl.textContent = "Upload successful!";
+          say("Upload successful!");
         } else {
-          console.error("Upload failed:", upload.status);
-          statusEl.textContent = "Upload failed.";
+          const errText = await upload.text().catch(() => "");
+          console.error("Upload failed:", upload.status, errText);
+          say(`Upload failed.\n${upload.status} ${upload.statusText}\n${errText.slice(0, 400)}`);
         }
 
       } catch (err) {
         console.error("Error:", err);
-        statusEl.textContent = "Upload failed (check console).";
+        say(`Upload failed (check console).\n${err.message || err}`);
       }
     }
   </script>
 
 </body>
 </html>
-
